@@ -1,5 +1,5 @@
 {
-  "name": "@tibco-software/cic-cli-plugin-tcam",
+  "name": "@tibco-software/cli-plugin-tcam",
   "version": "1.0.0",
   "author": "sharishc-tibco",
   "bugs": "https://github.com/TIBCOSoftware/cic-cli-core/issues",
