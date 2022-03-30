@@ -8,7 +8,7 @@ This is a CLI Plugin which will provide you the ability to run basic commands fo
 * [Commands](#commands)
 <!-- tocstop -->
 
-A detailed [step-by-step walkthrough for the CLI plugin usage is available here.](https://www.walkthrough.so/pblc/vkrdRQuzhTig/cli-plugin-for-tibco-cloud-tm-api-modeler?sn=6)
+A detailed [step-by-step walkthrough for the CLI plugin usage is available here.](https://www.walkthrough.so/pblc/QPaTYNPVOfUP/cli-plugin-for-tibco-cloud-tm-api-modeler?usp=sharing)
 
 # Usage
 Install CLI Main by following step #1 (i to v) from the instructions provided at https://github.com/TIBCOSoftware/cic-cli-main under the Installation topic.
