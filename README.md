@@ -1,13 +1,6 @@
  CLI Plugin for TIBCO Cloud™ API Modeler 
 ===================
 
-
-
-[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/cic-cli-plugin-tcam.svg)](https://npmjs.org/package/cic-cli-plugin-tcam)
-[![Downloads/week](https://img.shields.io/npm/dw/cic-cli-plugin-tcam.svg)](https://npmjs.org/package/cic-cli-plugin-tcam)
-[![License](https://img.shields.io/npm/l/cic-cli-plugin-tcam.svg)](https://github.com/cic-cli-plugin-tcam/cic-cli-plugin-tcam/blob/master/package.json)
-
 This is a CLI Plugin which will provide you the ability to run basic commands for TIBCO Cloud API Modeler features via the command line interface.
 
 <!-- toc -->
