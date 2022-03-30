@@ -47,7 +47,7 @@ EXAMPLE
   tibco tcam:create-project -p 'Cli Project'
 ```
 
-_See code: [src/commands/tcam/create-project.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.1/src/commands/tcam/create-project.ts)_
+_See code: [src/commands/tcam/create-project.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.2/src/commands/tcam/create-project.ts)_
 
 ## `tibco tcam:export-apis`
 
@@ -71,7 +71,7 @@ EXAMPLES
   tibco tcam:export-apis -p 'Cli Project' -a 'InvalidApi,CliOpenApi' -y
 ```
 
-_See code: [src/commands/tcam/export-apis.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.1/src/commands/tcam/export-apis.ts)_
+_See code: [src/commands/tcam/export-apis.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.2/src/commands/tcam/export-apis.ts)_
 
 ## `tibco tcam:import-apis`
 
@@ -100,7 +100,7 @@ EXAMPLES
   tibco tcam:import-apis -l 'C:/Users/myuser/Desktop/Upload/ImportProject' -p 'TestProject'
 ```
 
-_See code: [src/commands/tcam/import-apis.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.1/src/commands/tcam/import-apis.ts)_
+_See code: [src/commands/tcam/import-apis.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.2/src/commands/tcam/import-apis.ts)_
 
 ## `tibco tcam:list-apis`
 
@@ -128,7 +128,7 @@ EXAMPLES
   tibco tcam:list-apis -a 'CliAsyncApi,CliOpenApi'
 ```
 
-_See code: [src/commands/tcam/list-apis.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.1/src/commands/tcam/list-apis.ts)_
+_See code: [src/commands/tcam/list-apis.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.2/src/commands/tcam/list-apis.ts)_
 
 ## `tibco tcam:list-projects`
 
@@ -150,7 +150,7 @@ EXAMPLES
   tibco tcam:list-projects -p 'Cli Project, UI Project'
 ```
 
-_See code: [src/commands/tcam/list-projects.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.1/src/commands/tcam/list-projects.ts)_
+_See code: [src/commands/tcam/list-projects.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.2/src/commands/tcam/list-projects.ts)_
 
 ## `tibco tcam:validate-apis`
 
@@ -178,5 +178,5 @@ EXAMPLES
   tibco tcam:validate-apis -l 'C:/Users/myuser/Desktop/Upload/ImportProject -a 'bankapi,yamlapi'
 ```
 
-_See code: [src/commands/tcam/validate-apis.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.1/src/commands/tcam/validate-apis.ts)_
+_See code: [src/commands/tcam/validate-apis.ts](https://github.com/TIBCOSoftware/cic-cli-plugin-tcam/blob/v1.0.2/src/commands/tcam/validate-apis.ts)_
 <!-- commandsstop -->
