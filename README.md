@@ -14,7 +14,7 @@ A detailed [step-by-step walkthrough for the CLI plugin usage is available here.
 Install CLI Main by following step #1 (i to v) from the instructions provided at https://github.com/TIBCOSoftware/cic-cli-main under the Installation topic.
 ```sh-session
  Install TCAM CLI Plugin
-   $ tibco plugin:install @tibco-software/cli-plugin-tcam
+   $ tibco plugins:install @tibco-software/cli-plugin-tcam
  
  USAGE
   $ tibco tcam:COMMAND
