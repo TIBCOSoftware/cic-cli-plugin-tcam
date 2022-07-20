@@ -1,0 +1,26 @@
+{
+    "name": "mockApp",
+    "description": "",
+    "version": "1.0.0",
+    "type": "nodejs-app",
+    "resources": {
+      "physicalMemory": 1024,
+      "totalMemory": 4096,
+      "cpuQuota": 25
+    },
+    "endpoints": [
+      {
+        "primary": true,
+        "protocol": "http",
+        "port": "3000",
+        "public": true,
+        "swagger": {},
+        "type": "public",
+        "pingable": false,
+        "spec": {
+          "name": "name",
+          "version": ""
+        }
+      }
+    ]
+  }

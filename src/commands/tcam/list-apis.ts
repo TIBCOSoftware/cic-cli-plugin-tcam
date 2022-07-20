@@ -5,13 +5,13 @@
  */
 import {flags} from '@oclif/command';
 import { TCBaseCommand, ux } from '@tibco-software/cic-cli-core';
-import { CLIAPIS } from '../../constants/url.constants';
+import { CLIAPIS } from '../../utils/url.constants';
 export default class TcamListApis extends TCBaseCommand {
-  static description = 'Lists APIs';
-  static examples: string[] | undefined = ["tibco tcam:list-apis",
-  "tibco tcam:list-apis -p 'Cli Project'","tibco tcam:list-apis -p 'Cli Project,AuthProject'",
-   "tibco tcam:list-apis -t 'openapi'","tibco tcam:list-apis -p 'AuthProject' -t 'openapi'",
-   "tibco tcam:list-apis -a 'CliAsyncApi,CliOpenApi'"
+  static description = 'List APIs';
+  static examples: string[] | undefined = [`tibco tcam:list-apis`,
+  `tibco tcam:list-apis --projectnames "Cli Project"`,`tibco tcam:list-apis --projectnames "Cli Project,AuthProject"`,
+   `tibco tcam:list-apis --apitypes "openapi"`,`tibco tcam:list-apis -p "AuthProject" -t "openapi"`,
+   `tibco tcam:list-apis --apinames "CliAsyncApi,CliOpenApi"`
    ];
   spinner:any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
@@ -19,9 +19,9 @@ export default class TcamListApis extends TCBaseCommand {
     help: flags.help({char: 'h'}),
     // flag with no value (-f, --force)
     force: flags.boolean({char: 'f'}),
-    projectname: flags.string({char: 'p', description: 'Project names'}),
+    projectnames: flags.string({char: 'p', description: 'Specify project names'}),
     apitypes: flags.string({char: 't', description: 'API types you want to list. For example openapi,asyncapi'}),
-    apinames: flags.string({char: 'a', description: 'API names'})
+    apinames: flags.string({char: 'a', description: 'Specify API names'})
   }
   async init() {
     await super.init();
@@ -31,8 +31,8 @@ export default class TcamListApis extends TCBaseCommand {
   async run() {
     const {flags} = this.parse(TcamListApis);
     let params = new URLSearchParams();
-    if(flags.projectname){
-     const  projects = flags.projectname.split(',').map((name:any) => name.trim());
+    if(flags.projectnames){
+     const  projects = flags.projectnames.split(',').map((name:any) => name.trim());
     projects.forEach((proj:string) => {
       params.append('projectNames',proj);
     });

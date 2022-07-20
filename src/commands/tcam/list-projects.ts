@@ -5,11 +5,12 @@
  */
 import {flags} from '@oclif/command';
 import {TCBaseCommand,ux} from '@tibco-software/cic-cli-core';
-import { CLIAPIS } from '../../constants/url.constants';
+import { CLIAPIS } from '../../utils/url.constants';
 export default class TcamListProjects extends TCBaseCommand {
-  static description = "Lists projects";
+  static description = "List projects";
   static examples: string[] | undefined = ["tibco tcam:list-projects",
-  "tibco tcam:list-projects -p 'Cli Project, UI Project'"
+  `tibco tcam:list-projects --projectnames "Cli Project, UI Project"`,
+  `tibco tcam:list-projects -p "Cli Project, UI Project"`
    ];
    spinner:any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
@@ -17,7 +18,7 @@ export default class TcamListProjects extends TCBaseCommand {
     help: flags.help({char: 'h'}),
     // flag with no value (-f, --force)
     force: flags.boolean({char: 'f'}),
-    projectnames: flags.string({char: 'p', description: 'Project names'}),
+    projectnames: flags.string({char: 'p', description: 'Specify project names'}),
   }
   async init() {
     await super.init();

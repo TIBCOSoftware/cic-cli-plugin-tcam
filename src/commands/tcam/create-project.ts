@@ -5,17 +5,18 @@
  */
 import { flags} from '@oclif/command'
 import { chalk, TCBaseCommand , ux} from '@tibco-software/cic-cli-core'
-import { CLIAPIS } from '../../constants/url.constants';
+import { CLIAPIS } from '../../utils/url.constants';
 export default class TcamCreateProject extends TCBaseCommand {
-  static description = 'Creates a project';
-  static examples: string[] | undefined = ["tibco tcam:create-project -p 'Cli Project'"];
+  static description = 'Create a project';
+  static examples: string[] | undefined = [`tibco tcam:create-project --name "Cli Project"`,
+  `tibco tcam:create-project -n "Cli Project"`];
   spinner:any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({char: 'h'}),
     // flag with no value (-f, --force)
     force: flags.boolean({char: 'f'}),
-    projectname:flags.string({char:'p',description:'Project name',required:true})
+    name:flags.string({char:'n',description:'Specify a project name',required:true})
   }
   async init() {
     await super.init();
@@ -25,14 +26,14 @@ export default class TcamCreateProject extends TCBaseCommand {
 
   async run() {
     const {flags} = this.parse(TcamCreateProject);
-    const projectname = flags.projectname.trim();
+    const projectname = flags.name.trim();
     let tcReq = this.getTCRequest();
     this.spinner.start("creating project...");
     const res:any=await tcReq.doRequest(CLIAPIS.createproject,{method:'POST'},{projectName:projectname});
      if(res.body.message === 'Project with same name already exists'){
       throw { httpResponse:{ message:`${chalk.red.bold(projectname)} already exists`}}
      }
-    this.spinner.succeed('Project created successfully!');
+    this.spinner.succeed('Project created successfully.');
      
   }
   async catch(err: any) {

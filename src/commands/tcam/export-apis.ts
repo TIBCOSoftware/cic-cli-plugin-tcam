@@ -10,18 +10,20 @@ import { homedir } from 'os';
 import * as AdmZip from 'adm-zip';
 import { writeFileSync } from 'fs';
 const YAML = require('json-to-pretty-yaml');
-import { CLIAPIS } from '../../constants/url.constants';
+import { CLIAPIS } from '../../utils/url.constants';
 export default class TcamExportApis extends TCBaseCommand {
-  static description = 'Exports APIs to local file system';
-  static examples: string[] | undefined = ["tibco tcam:export-apis -p 'Cli Project'", "tibco tcam:export-apis -p 'Cli Project' -a 'InvalidApi,CliOpenApi' -y"];
+  static description = 'Export APIs to a local file system';
+  static examples: string[] | undefined = [`tibco tcam:export-apis --projectname "Cli Project"`, 
+  `tibco tcam:export-apis --projectname "Cli Project" --apinames 'InvalidApi,CliOpenApi" --yaml`,
+  `tibco tcam:export-apis -p "Cli Project" -a "InvalidApi,CliOpenApi" -y`];
   spinner: any;
   zip: any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({ char: 'h' }),
-    projectname: flags.string({ char: 'p', required: true, description: 'Exports the APIs of the specified project' }),
-    apinames: flags.string({ char: 'a', description: 'Specify the API names that need to be exported' }),
-    yaml: flags.boolean({ char: 'y', description: 'Exports APIs in yaml format' }),
+    projectname: flags.string({ char: 'p', required: true, description: 'Export APIs for the specified project' }),
+    apinames: flags.string({ char: 'a', description: 'Specify APIs to export by name' }),
+    yaml: flags.boolean({ char: 'y', description: 'Export APIs in YAML format' }),
     // flag with no value (-f, --force)
     force: flags.boolean({ char: 'f' }),
   }
@@ -43,9 +45,9 @@ export default class TcamExportApis extends TCBaseCommand {
     const projects: any[] = projRes.body.projects;
     const project = projects.find((proj) => proj.projectName.toLowerCase() === flags.projectname.trim().toLowerCase());
     if (!project) {
-      throw { message: `No project with name ${chalk.red.bold(flags.projectname)} exists.` }
+      throw { message: `No project with name [${chalk.red.bold(flags.projectname)}] exists.` }
     }
-    let payload: any = { projectId: project.SK }
+   let payload: any = { projectId: project.projectId };
     if (flags.apinames) {
       inputApiNames = flags.apinames.split(',').map((name: any) => name.trim());
       payload['apiNames'] = inputApiNames;
@@ -85,13 +87,13 @@ export default class TcamExportApis extends TCBaseCommand {
       }
     }
     if (filteredApis.length > 0) {
-      this.spinner.succeed(`${filteredApis.length} API(s) successfully exported to the Downloads folder`);
+      this.spinner.succeed(`${filteredApis.length} ${filteredApis.length === 1 ? 'API':'APIs'} exported successfully to the Downloads folder.`);
     }
     if (inputApiNames.length > 0 && inputApiNames.length === invalidNames.length) {
       this.spinner.fail();
     }
     if (invalidNames.length > 0) {
-      this.error(`${invalidNames.length} API(s) export failed`, { exit: false });
+      this.error(`${invalidNames.length} ${invalidNames.length === 1 ? 'API':'APIs'} export failed`, { exit: false });
       for (const apiName of invalidNames) {
         this.error(`${chalk.red.bold(apiName)} does not exist in ${chalk.green.bold(flags.projectname)} project`, { exit: false });
       }
