@@ -7,9 +7,10 @@ import { flags } from '@oclif/command'
 import { chalk, TCBaseCommand, ux } from '@tibco-software/cic-cli-core';
 import { join } from 'path';
 import { promises as fsPromises, lstatSync, readFileSync } from 'fs';
-import { ImportApi } from '../../utils/constants';
+import { FileDetails, ImportApi } from '../../utils/constants';
 import { CLIAPIS } from '../../utils/url.constants';
 import { extensionChecker, processApi } from '../../utils/common.functions';
+
 export default class TcamValidateApis extends TCBaseCommand {
     static description = 'Validate API specs';
     static examples: string[] | undefined = [
@@ -29,11 +30,13 @@ export default class TcamValidateApis extends TCBaseCommand {
         }),
         apinames: flags.string({ char: 'a', description: 'API names that need to be validated from the directory' })
     }
+
     async init() {
         await super.init();
         // Do any other  initialization
         this.spinner = await ux.spinner();
     }
+    
     async run() {
         const { flags } = this.parse(TcamValidateApis);
         const path = flags.from.trim();
@@ -48,9 +51,13 @@ export default class TcamValidateApis extends TCBaseCommand {
         }
         // Path is a file
         if (lstatSync(path).isFile()) {
-            const fileDetails = extensionChecker(path);
+            const fileDetails: FileDetails = extensionChecker(path);
             const fileData = readFileSync(path, 'utf-8');
-            processApi(fileDetails,fileData,apiArr);
+            processApi({
+                fileDetails: fileDetails,
+                fileData: fileData,
+                apiArr: apiArr
+              });
         }
         //Path is a directory
         else {
@@ -62,9 +69,13 @@ export default class TcamValidateApis extends TCBaseCommand {
             }
             for (const file of files) {
                 const fpath = join(path, file);
-                const fileDetails = extensionChecker(fpath);
+                const fileDetails: FileDetails = extensionChecker(fpath);
                 const fileData = await fsPromises.readFile(fpath, { encoding: 'utf8' });
-                processApi(fileDetails,fileData,apiArr);
+                processApi({
+                    fileDetails: fileDetails,
+                    fileData: fileData,
+                    apiArr: apiArr
+                  });
             }
         }
         const payload = { apiList: apiArr };

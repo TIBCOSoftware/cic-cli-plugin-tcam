@@ -4,5 +4,6 @@ export const CLIAPIS = {
     exportapis:'/modeler/v1/cli/export',
     importapis:'/modeler/v1/cli/import',
     validateapis:'modeler/v1/cli/validate',
-    createproject:'/modeler/v1/cli/project'
+    createproject:'/modeler/v1/cli/project',
+    apisdata:'/modeler/v1/apis-data'
 }

@@ -6,6 +6,7 @@
 import {flags} from '@oclif/command';
 import {TCBaseCommand,ux} from '@tibco-software/cic-cli-core';
 import { CLIAPIS } from '../../utils/url.constants';
+
 export default class TcamListProjects extends TCBaseCommand {
   static description = "List projects";
   static examples: string[] | undefined = ["tibco tcam:list-projects",
@@ -20,11 +21,13 @@ export default class TcamListProjects extends TCBaseCommand {
     force: flags.boolean({char: 'f'}),
     projectnames: flags.string({char: 'p', description: 'Specify project names'}),
   }
+
   async init() {
     await super.init();
     // Do any other  initialization
    this.spinner = await ux.spinner();
   }
+
   async run() {
     const {flags} = this.parse(TcamListProjects);
     let projects = [];
@@ -52,6 +55,7 @@ export default class TcamListProjects extends TCBaseCommand {
     this.spinner.fail("No Projects found");
    }
   }
+
   async catch(err: Error) {
     // add any custom logic to handle errors from the command
     // or simply return the parent class error handling
@@ -59,6 +63,7 @@ export default class TcamListProjects extends TCBaseCommand {
     this.spinner.fail()
     return super.catch(err);
   }
+  
   async finally(err: Error) {
     // called after run and catch regardless of whether or not the command errored
     return super.finally(err);

@@ -10,14 +10,16 @@ import { CLIAPIS } from '../../utils/url.constants';
 import * as manifest_json from '../../utils/manifest.json';
 import { load } from 'js-yaml';
 import { extensionChecker } from '../../utils/common.functions';
+import { FileDetails } from '../../utils/constants';
 const $RefParser = require("@apidevtools/json-schema-ref-parser");
 const codegen = require('../../../assets/codegen-swagger-express');
 const DATE = Date.now();
+
 export default class TcamGenMock extends TCBaseCommand {
   static description = 'Generate a NodeJS mock app';
   static examples: string[] | undefined =
     [`tibco tcam:generate-mock --from "C:/Users/myuser/Desktop/Upload/ImportApi.json" --deploy --static`,
-      "tibco tcam:generate-mock --project NodeProj --api Petstore --deploy",
+      `tibco tcam:generate-mock --project NodeProj --api Petstore --deploy`,
       `tibco tcam:generate-mock -f "C:/Users/myuser/Desktop/Upload/ImportApi.json" -d -s`];
   spinner: any;
   tcReq: any;
@@ -55,12 +57,14 @@ export default class TcamGenMock extends TCBaseCommand {
     })
 
   }
+
   async init() {
     await super.init();
     // Do any other  initialization
     this.spinner = await ux.spinner();
     this.tcReq = this.getTCRequest();
   }
+
   async run() {
     const { flags } = this.parse(TcamGenMock);
     if (!(flags.from || (flags.project && flags.api))) {
@@ -74,17 +78,17 @@ export default class TcamGenMock extends TCBaseCommand {
       if (!lstatSync(fpath).isFile()) {
         throw { message: `Provided path is not a file.` }
       }
-      const fileDetails = extensionChecker(fpath);
+      const fileDetails: FileDetails = extensionChecker(fpath);
       specName = fileDetails.name;
       spec = await this.generateAppUsingFile(fpath, fileDetails);
       const apiArr = [
         {
           apiName: specName,
-          apiSpecType: "openapi",
-          schemaType: "OAS3.0",
+          apiSpecType: 'openapi',
+          schemaType: 'OAS3.0',
           content: JSON.stringify(spec),
-          apiVersion: "1.0",
-          apiContentType: "json"
+          apiVersion: '1.0',
+          apiContentType: 'json'
         }
       ];
       const payload = { apiList: apiArr };
@@ -114,6 +118,7 @@ export default class TcamGenMock extends TCBaseCommand {
       }
     }
   }
+
   async catch(err: any) {
     // add any custom logic to handle errors from the command
     // or simply return the parent class error handling
@@ -127,11 +132,13 @@ export default class TcamGenMock extends TCBaseCommand {
       this.spinner.fail();
     return super.catch(err);
   }
+
   async finally(err: Error) {
     // called after run and catch regardless of whether or not the command errored
     return super.finally(err);
   }
-  async pushApp(parentFolder: string, genName: string) {
+
+  async pushApp(parentFolder: string, genName: string): Promise<any> {
     let tmpDir = tmpdir();
     this.tmpStorage = join(tmpDir, `${genName}.zip`);
     const manifestPath = join(homedir(), 'Downloads', parentFolder, 'manifest.json');
@@ -143,12 +150,13 @@ export default class TcamGenMock extends TCBaseCommand {
       "manifest.json": `file://${manifestPath}`,
     });
   }
-  async generateAppUsingSpec(projectName: string, apiName: string, flags: any) {
+
+  async generateAppUsingSpec(projectName: string, apiName: string, flags: any): Promise<void> {
     let params = new URLSearchParams();
     params.append('projectNames', projectName)
     params.append('apiNames', apiName);
     let tcReq = this.getTCRequest();
-    const res: any = await tcReq.doRequest('/modeler/v1/apis-data', { method: 'GET', params: params });
+    const res: any = await tcReq.doRequest(CLIAPIS.apisdata, { method: 'GET', params: params });
     if (res.body.api.length > 1) {
       const displayApis = [];
       for (const api of res.body.api) {
@@ -170,14 +178,16 @@ export default class TcamGenMock extends TCBaseCommand {
       throw { message: 'No API found' }
     }
   }
-  async generateAppUsingFile(filePath: string, fileDetails: any) {
+
+  async generateAppUsingFile(filePath: string, fileDetails: any): Promise<any> {
     const fileData = await fsPromises.readFile(filePath, { encoding: 'utf8' });
     if (fileDetails.extension === '.json') {
       return JSON.parse(fileData);
     }
     return load(fileData);
   }
-  async genManifest(spec: any, name: string, manifestPath: string) {
+
+  async genManifest(spec: any, name: string, manifestPath: string): Promise<any> {
     let manifest: any = manifest_json;
     manifest.name = name;
     manifest.version = spec.info.version;
@@ -189,7 +199,8 @@ export default class TcamGenMock extends TCBaseCommand {
     manifest.endpoints[0].spec.description = description;
     return fsPromises.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   }
-  async generateCode(spec: any, folderName: string, specName: string, staticResp: boolean) {
+
+  async generateCode(spec: any, folderName: string, specName: string, staticResp: boolean): Promise<string> {
     const dynamic = !staticResp;
     const specFolderName: string = specName;
     spec.info.title = specFolderName;

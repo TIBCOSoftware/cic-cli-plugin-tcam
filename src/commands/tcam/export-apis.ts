@@ -11,11 +11,13 @@ import * as AdmZip from 'adm-zip';
 import { writeFileSync } from 'fs';
 const YAML = require('json-to-pretty-yaml');
 import { CLIAPIS } from '../../utils/url.constants';
+import { ExportApiPayload } from '../../utils/constants';
+
 export default class TcamExportApis extends TCBaseCommand {
   static description = 'Export APIs to a local file system';
-  static examples: string[] | undefined = [`tibco tcam:export-apis --projectname "Cli Project"`, 
-  `tibco tcam:export-apis --projectname "Cli Project" --apinames 'InvalidApi,CliOpenApi" --yaml`,
-  `tibco tcam:export-apis -p "Cli Project" -a "InvalidApi,CliOpenApi" -y`];
+  static examples: string[] | undefined = [`tibco tcam:export-apis --projectname "Cli Project"`,
+    `tibco tcam:export-apis --projectname "Cli Project" --apinames 'InvalidApi,CliOpenApi" --yaml`,
+    `tibco tcam:export-apis -p "Cli Project" -a "InvalidApi,CliOpenApi" -y`];
   spinner: any;
   zip: any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
@@ -39,7 +41,7 @@ export default class TcamExportApis extends TCBaseCommand {
     let tcReq = this.getTCRequest();
     this.spinner.start("Exporting APIs...");
     const exportExtension = flags.yaml ? '.yaml' : '.json';
-    let inputApiNames: any[] = [];
+    let inputApiNames: string[] = [];
     const projRes: any = await tcReq.doRequest(CLIAPIS.getprojects, { method: 'GET' });
 
     const projects: any[] = projRes.body.projects;
@@ -47,10 +49,10 @@ export default class TcamExportApis extends TCBaseCommand {
     if (!project) {
       throw { message: `No project with name [${chalk.red.bold(flags.projectname)}] exists.` }
     }
-   let payload: any = { projectId: project.projectId };
+    let payload: ExportApiPayload = { projectId: project.projectId };
     if (flags.apinames) {
-      inputApiNames = flags.apinames.split(',').map((name: any) => name.trim());
-      payload['apiNames'] = inputApiNames;
+      inputApiNames = flags.apinames.split(',').map((name: string) => name.trim());
+      payload.apiNames = inputApiNames;
     }
     const apiRes: any = await tcReq.doRequest(CLIAPIS.exportapis, { method: 'POST' }, payload);
     let filteredApis: any[] = apiRes.body.apiItems;
@@ -81,19 +83,20 @@ export default class TcamExportApis extends TCBaseCommand {
     if (filteredApis.length === 1) {
       const api = filteredApis[0];
       if (exportExtension === '.json') {
-        writeFileSync(join(homedir(), 'Downloads', api.apiName + '-' + api.version + '.json'), JSON.stringify(api.content, undefined, 4));
+        writeFileSync(join(homedir(), 'Downloads', api.apiName + '-' + api.version + '.json'),
+          JSON.stringify(api.content, undefined, 4));
       } else {
         writeFileSync(join(homedir(), 'Downloads', api.apiName + '-' + api.version + '.yaml'), YAML.stringify(api.content));
       }
     }
     if (filteredApis.length > 0) {
-      this.spinner.succeed(`${filteredApis.length} ${filteredApis.length === 1 ? 'API':'APIs'} exported successfully to the Downloads folder.`);
+      this.spinner.succeed(`${filteredApis.length} ${filteredApis.length === 1 ? 'API' : 'APIs'} exported successfully to the Downloads folder.`);
     }
     if (inputApiNames.length > 0 && inputApiNames.length === invalidNames.length) {
       this.spinner.fail();
     }
     if (invalidNames.length > 0) {
-      this.error(`${invalidNames.length} ${invalidNames.length === 1 ? 'API':'APIs'} export failed`, { exit: false });
+      this.error(`${invalidNames.length} ${invalidNames.length === 1 ? 'API' : 'APIs'} export failed`, { exit: false });
       for (const apiName of invalidNames) {
         this.error(`${chalk.red.bold(apiName)} does not exist in ${chalk.green.bold(flags.projectname)} project`, { exit: false });
       }

@@ -5,13 +5,14 @@
  */
 import { flags } from '@oclif/command';
 import { TCBaseCommand, ux } from '@tibco-software/cic-cli-core';
-import { ImportApi } from '../../utils/constants';
+import { FileDetails, ImportApi } from '../../utils/constants';
 import * as fs from 'fs';
 import { join } from 'path';
 import { chalk } from '@tibco-software/cic-cli-core';
 import { CLIAPIS } from '../../utils/url.constants';
 import { promises as fsPromises, lstatSync } from 'fs';
 import { extensionChecker, processApi } from '../../utils/common.functions';
+
 export default class TcamImportApis extends TCBaseCommand {
   static description = 'Import API specs';
   static examples: string[] | undefined = [
@@ -54,7 +55,8 @@ export default class TcamImportApis extends TCBaseCommand {
     let project = projects.find((proj) => proj.projectName.toLowerCase() === inputProjName.toLowerCase());
     if (!project) {
       this.spinner.stop();
-      const ans: string = await ux.prompt(`Project, [${chalk.red.bold(flags.projectname)}] doesn't exist. Do you wish to create the project? (Y/N)`,'input',flags.newproject);    
+      const createMsg = `Project, [${chalk.red.bold(flags.projectname)}] doesn't exist. Do you wish to create the project? (Y/N)`;
+      const ans: string = await ux.prompt(createMsg, 'input', flags.newproject);
       if (ans.toLowerCase() === 'y' || ans.toLowerCase() === 'yes') {
         const projRes: any = await tcReq.doRequest(CLIAPIS.createproject, { method: 'POST' }, { projectName: inputProjName });
         this.spinner.succeed('Project created successfully.');
@@ -65,33 +67,43 @@ export default class TcamImportApis extends TCBaseCommand {
       }
     }
     if (lstatSync(path).isFile()) {// Path is a file
-      const fileDetails = extensionChecker(path);
+      const fileDetails: FileDetails = extensionChecker(path);
       const fileData = fs.readFileSync(path, 'utf-8');
-      processApi(fileDetails, fileData, apiArr, inputProjName);
+      processApi({
+        fileDetails: fileDetails,
+        fileData: fileData,
+        apiArr: apiArr,
+        projectName: inputProjName
+      });
     }
     else { //Path is a directory
       const files = await fsPromises.readdir(path);
       for (const file of files) {
         const fpath = join(path, file);
-        const fileDetails = extensionChecker(fpath);
+        const fileDetails: FileDetails = extensionChecker(fpath);
         const fileData = await fsPromises.readFile(fpath, { encoding: 'utf8' });
-        processApi(fileDetails, fileData, apiArr, inputProjName);
+        processApi({
+          fileDetails: fileDetails,
+          fileData: fileData,
+          apiArr: apiArr,
+          projectName: inputProjName
+        });
       }
     }
     const payload = { apiList: apiArr };
     const res: any = await tcReq.doRequest(CLIAPIS.importapis, { method: 'POST' }, payload);
     if (res.body.invalidApis.length === 0) {
-      this.spinner.succeed(`${apiArr.length} ${apiArr.length === 1 ? 'API':'APIs'} imported successfully.`);
+      this.spinner.succeed(`${apiArr.length} ${apiArr.length === 1 ? 'API' : 'APIs'} imported successfully.`);
     }
     else if (res.body.invalidApis.length > 0) {
       if (res.body.invalidApis.length < apiArr.length) {
         const successCount = apiArr.length - res.body.invalidApis.length;
-        this.spinner.succeed(`${successCount} ${successCount === 1 ? 'API':'APIs'} imported sucessfully.`);
+        this.spinner.succeed(`${successCount} ${successCount === 1 ? 'API' : 'APIs'} imported sucessfully.`);
       } else {
         this.spinner.fail();
       }
       const failCount = res.body.invalidApis.length;
-      this.error(`Import of ${chalk.red.bold(failCount)} ${failCount === 1 ? 'API':'APIs'} failed.`, { exit: false });
+      this.error(`Import of ${chalk.red.bold(failCount)} ${failCount === 1 ? 'API' : 'APIs'} failed.`, { exit: false });
       for (const invalidApi of res.body.invalidApis) {
         if (invalidApi.errorMsg === 'API with same name & version already exist') {
           this.error(`An API named ${chalk.red.bold(invalidApi.fileName)} already exists. Try renaming your file.`, { exit: false });
