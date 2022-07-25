@@ -4,7 +4,7 @@
  * in the license file that is distributed with this file.
  */
 import { flags } from '@oclif/command'
-import { chalk, TCBaseCommand, ux } from '@tibco-software/cic-cli-core';
+import { chalk, TCBaseCommand, TCRequest, ux } from '@tibco-software/cic-cli-core';
 import { join } from 'path';
 import { promises as fsPromises, lstatSync, readFileSync } from 'fs';
 import { FileDetails, ImportApi } from '../../utils/constants';
@@ -19,7 +19,7 @@ export default class TcamValidateApis extends TCBaseCommand {
         `tibco tcam:validate-apis --from "C:/Users/myuser/Desktop/Upload/ImportProject" --apinames "bankapi,yamlapi"`,
         `tibco tcam:validate-apis -f "C:/Users/myuser/Desktop/Upload/ImportProject" -a "bankapi,yamlapi"`
     ];
-    spinner: any;
+    spinner!: Awaited<ReturnType<typeof ux.spinner>>;
     static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
         ...TCBaseCommand.flags,
         help: flags.help({ char: 'h' }),
@@ -36,16 +36,16 @@ export default class TcamValidateApis extends TCBaseCommand {
         // Do any other  initialization
         this.spinner = await ux.spinner();
     }
-    
+
     async run() {
         const { flags } = this.parse(TcamValidateApis);
         const path = flags.from.trim();
         const apiArr: ImportApi[] = [];
         let inputApis: any[] = [];
-        let tcReq = this.getTCRequest();
+        let tcReq: TCRequest = this.getTCRequest();
         this.spinner.start("Validating APIs...");
         if (flags.apinames) {
-            inputApis = flags.apinames.split(',').map((name: any) => name.trim());
+            inputApis = flags.apinames.split(',').map((name: string) => name.trim());
             if (inputApis.length === 0)
                 this.error('Provide API names in proper format. Refer tcam:validate-apis --help for examples.');
         }
@@ -57,7 +57,7 @@ export default class TcamValidateApis extends TCBaseCommand {
                 fileDetails: fileDetails,
                 fileData: fileData,
                 apiArr: apiArr
-              });
+            });
         }
         //Path is a directory
         else {
@@ -75,11 +75,11 @@ export default class TcamValidateApis extends TCBaseCommand {
                     fileDetails: fileDetails,
                     fileData: fileData,
                     apiArr: apiArr
-                  });
+                });
             }
         }
         const payload = { apiList: apiArr };
-        const res: any = await tcReq.doRequest(CLIAPIS.validateapis, { method: 'POST' }, payload);
+        const res = await tcReq.doRequest(CLIAPIS.validateapis, { method: 'POST' }, payload);
         this.spinner.succeed(`APIs validated successfully.`);
         for (const api of res.body.result) {
             if (api.result.message === 'API is valid') {
@@ -93,7 +93,7 @@ export default class TcamValidateApis extends TCBaseCommand {
 
     async catch(err: Error) {
         if (this.spinner)
-            this.spinner.fail();
+            this.spinner.fail('failed');
         return super.catch(err);
     }
     async finally(err: Error) {

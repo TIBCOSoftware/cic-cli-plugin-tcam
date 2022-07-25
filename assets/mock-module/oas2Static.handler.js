@@ -1,7 +1,5 @@
-const { getDummyResponse, getStaticResponses } = require("./commom.function");
-class Oas2StaticHandler {
-  constructor() {}
-  generateStaticResponse = (responses, schema) => {
+const { getDummyResponse, getStaticResponses } = require("./common.function");
+  exports.generateStaticResponseOAS2 = (responses, schema) => {
     const examples = responses["200"].examples;
     if (examples && Object.keys(examples).length > 0) {
       return JSON.stringify(examples[Object.keys(examples)[0]]);
@@ -17,5 +15,3 @@ class Oas2StaticHandler {
       return "'200 okay'";
     }
   };
-}
-module.exports = new Oas2StaticHandler();

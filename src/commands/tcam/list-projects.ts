@@ -4,7 +4,7 @@
  * in the license file that is distributed with this file.
  */
 import {flags} from '@oclif/command';
-import {TCBaseCommand,ux} from '@tibco-software/cic-cli-core';
+import {TCBaseCommand,TCRequest,ux} from '@tibco-software/cic-cli-core';
 import { CLIAPIS } from '../../utils/url.constants';
 
 export default class TcamListProjects extends TCBaseCommand {
@@ -13,7 +13,7 @@ export default class TcamListProjects extends TCBaseCommand {
   `tibco tcam:list-projects --projectnames "Cli Project, UI Project"`,
   `tibco tcam:list-projects -p "Cli Project, UI Project"`
    ];
-   spinner:any;
+  spinner!: Awaited<ReturnType<typeof ux.spinner>>;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({char: 'h'}),
@@ -33,14 +33,14 @@ export default class TcamListProjects extends TCBaseCommand {
     let projects = [];
     let params = new URLSearchParams();
     if(flags.projectnames){
-      projects = flags.projectnames.split(',').map((name:any) => name.trim());
+      projects = flags.projectnames.split(',').map((name:string) => name.trim());
        projects.forEach((proj:string) => {
          params.append('projectNames',proj);
        });
     }
-   let tcReq = this.getTCRequest();
+   let tcReq: TCRequest = this.getTCRequest();
     this.spinner.start("fetching projects...");
-    const res:any=await tcReq.doRequest(CLIAPIS.getprojects,{method:'GET',params:params});
+    const res = await tcReq.doRequest(CLIAPIS.getprojects,{method:'GET',params:params});
    const projectsArr = res.body.projects;
    if(projectsArr.length > 0){
     this.spinner.succeed("Projects fetched");
@@ -60,7 +60,7 @@ export default class TcamListProjects extends TCBaseCommand {
     // add any custom logic to handle errors from the command
     // or simply return the parent class error handling
     if(this.spinner)
-    this.spinner.fail()
+    this.spinner.fail('failed');
     return super.catch(err);
   }
   

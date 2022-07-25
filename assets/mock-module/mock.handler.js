@@ -12,9 +12,9 @@ module.exports.generateResponse = (
   // check if responses contains 200 response
   if (responses[CODE_200]) {
     const schema =
-      oasType === OAS3
-        ? responses[CODE_200].content ? responses[CODE_200].content["application/json"]?.schema : undefined
-        : responses[CODE_200].schema;
+    oasType === OAS3
+      && responses[CODE_200].content ? responses[CODE_200].content["application/json"]?.schema
+      : responses[CODE_200].schema;
     // in case of dynamic responses
     if (dynamic) {
       if (schema) {
@@ -25,11 +25,11 @@ module.exports.generateResponse = (
     }
     // in case of static responses for OAS3.0
     else if (oasType === OAS3) {
-      return Oas3StaticHandler.generateStaticResponse(responses, schema);
+      return Oas3StaticHandler.generateStaticResponseOAS3(responses, schema);
     }
     // in case of static responses for OAS2.0
     else {
-      return Oas2StaticHandler.generateStaticResponse(responses, schema);
+      return Oas2StaticHandler.generateStaticResponseOAS2(responses, schema);
     }
   } else {
     return "'200 okay'";

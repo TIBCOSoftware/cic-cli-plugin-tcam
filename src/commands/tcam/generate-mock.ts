@@ -1,5 +1,5 @@
 import { flags } from '@oclif/command';
-import { chalk, HTTPError, TCBaseCommand, ux } from '@tibco-software/cic-cli-core';
+import { chalk, HTTPError, TCBaseCommand, TCRequest, ux } from '@tibco-software/cic-cli-core';
 import { homedir } from 'os';
 import { join } from 'path';
 import * as AdmZip from "adm-zip";
@@ -21,8 +21,9 @@ export default class TcamGenMock extends TCBaseCommand {
     [`tibco tcam:generate-mock --from "C:/Users/myuser/Desktop/Upload/ImportApi.json" --deploy --static`,
       `tibco tcam:generate-mock --project NodeProj --api Petstore --deploy`,
       `tibco tcam:generate-mock -f "C:/Users/myuser/Desktop/Upload/ImportApi.json" -d -s`];
-  spinner: any;
-  tcReq: any;
+  // spinner: typeof ux.spinner;
+  tcReq: TCRequest = this.getTCRequest();
+  spinner!:  Awaited<ReturnType<typeof ux.spinner>>;
   tmpStorage = '';
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
@@ -61,8 +62,7 @@ export default class TcamGenMock extends TCBaseCommand {
   async init() {
     await super.init();
     // Do any other  initialization
-    this.spinner = await ux.spinner();
-    this.tcReq = this.getTCRequest();
+     this.spinner = await ux.spinner();
   }
 
   async run() {
@@ -92,7 +92,7 @@ export default class TcamGenMock extends TCBaseCommand {
         }
       ];
       const payload = { apiList: apiArr };
-      const res: any = await this.tcReq.doRequest(CLIAPIS.validateapis, { method: 'POST' }, payload);
+      const res = await this.tcReq.doRequest(CLIAPIS.validateapis, { method: 'POST' }, payload);
       if (res.body.result[0].result?.message !== 'API is valid') {
         throw { message: `${chalk.red.bold(fileDetails.name)}  file is not a valid open api.` }
       }
@@ -129,7 +129,7 @@ export default class TcamGenMock extends TCBaseCommand {
       this.error(`Error Occured.\n ${"Details: " + chalk.red(err.httpResponse?.errorDetail)}`);
     }
     if (this.spinner)
-      this.spinner.fail();
+      this.spinner.fail('failed');
     return super.catch(err);
   }
 
@@ -155,8 +155,7 @@ export default class TcamGenMock extends TCBaseCommand {
     let params = new URLSearchParams();
     params.append('projectNames', projectName)
     params.append('apiNames', apiName);
-    let tcReq = this.getTCRequest();
-    const res: any = await tcReq.doRequest(CLIAPIS.apisdata, { method: 'GET', params: params });
+    const res = await this.tcReq.doRequest(CLIAPIS.apisdata, { method: 'GET', params: params });
     if (res.body.api.length > 1) {
       const displayApis = [];
       for (const api of res.body.api) {

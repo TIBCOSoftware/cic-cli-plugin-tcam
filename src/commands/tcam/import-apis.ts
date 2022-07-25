@@ -4,7 +4,7 @@
  * in the license file that is distributed with this file.
  */
 import { flags } from '@oclif/command';
-import { TCBaseCommand, ux } from '@tibco-software/cic-cli-core';
+import { HTTPResponse, TCBaseCommand, TCRequest, ux } from '@tibco-software/cic-cli-core';
 import { FileDetails, ImportApi } from '../../utils/constants';
 import * as fs from 'fs';
 import { join } from 'path';
@@ -19,7 +19,7 @@ export default class TcamImportApis extends TCBaseCommand {
     "tibco tcam:import-apis --from 'C:/Users/myuser/Desktop/Upload/ImportApi.json' --projectname 'TestProject'",
     "tibco tcam:import-apis -f 'C:/Users/myuser/Desktop/Upload/ImportProject' -p 'TestProject'"
   ];
-  spinner: any;
+  spinner!: Awaited<ReturnType<typeof ux.spinner>>;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({ char: 'h' }),
@@ -38,18 +38,20 @@ export default class TcamImportApis extends TCBaseCommand {
       helpValue: 'yes',
     })
   }
+
   async init() {
     await super.init();
     // Do any other  initialization
     this.spinner = await ux.spinner();
   }
+  
   async run() {
     const { flags } = this.parse(TcamImportApis);
     const path = flags.from.trim();
     const apiArr: ImportApi[] = [];
-    let tcReq = this.getTCRequest();
+    let tcReq: TCRequest = this.getTCRequest();
     this.spinner.start("Importing APIs...");
-    const projRes: any = await tcReq.doRequest(CLIAPIS.getprojects, { method: 'GET' });
+    const projRes = await tcReq.doRequest(CLIAPIS.getprojects, { method: 'GET' });
     const projects: any[] = projRes.body.projects;
     const inputProjName: string = flags.projectname.trim();
     let project = projects.find((proj) => proj.projectName.toLowerCase() === inputProjName.toLowerCase());
@@ -58,7 +60,7 @@ export default class TcamImportApis extends TCBaseCommand {
       const createMsg = `Project, [${chalk.red.bold(flags.projectname)}] doesn't exist. Do you wish to create the project? (Y/N)`;
       const ans: string = await ux.prompt(createMsg, 'input', flags.newproject);
       if (ans.toLowerCase() === 'y' || ans.toLowerCase() === 'yes') {
-        const projRes: any = await tcReq.doRequest(CLIAPIS.createproject, { method: 'POST' }, { projectName: inputProjName });
+        const projRes = await tcReq.doRequest(CLIAPIS.createproject, { method: 'POST' }, { projectName: inputProjName });
         this.spinner.succeed('Project created successfully.');
         this.spinner.start("Importing APIs...");
         project = projRes.body.project;
@@ -91,7 +93,27 @@ export default class TcamImportApis extends TCBaseCommand {
       }
     }
     const payload = { apiList: apiArr };
-    const res: any = await tcReq.doRequest(CLIAPIS.importapis, { method: 'POST' }, payload);
+    const res = await tcReq.doRequest(CLIAPIS.importapis, { method: 'POST' }, payload);
+    this.displayImportAPIResponse(res, apiArr);
+
+  }
+
+  async catch(err: any) {
+    // add any custom logic to handle errors from the command
+    // or simply return the parent class error handling
+    if (this.spinner)
+      this.spinner.fail('failed');
+    if (err?.httpResponse?.message)
+      err = { message: err?.httpResponse?.message }
+    return super.catch(err);
+  }
+
+  async finally(err: Error) {
+    // called after run and catch regardless of whether or not the command errored
+    return super.finally(err);
+  }
+
+  displayImportAPIResponse(res: HTTPResponse, apiArr: ImportApi[]): void {
     if (res.body.invalidApis.length === 0) {
       this.spinner.succeed(`${apiArr.length} ${apiArr.length === 1 ? 'API' : 'APIs'} imported successfully.`);
     }
@@ -100,7 +122,7 @@ export default class TcamImportApis extends TCBaseCommand {
         const successCount = apiArr.length - res.body.invalidApis.length;
         this.spinner.succeed(`${successCount} ${successCount === 1 ? 'API' : 'APIs'} imported sucessfully.`);
       } else {
-        this.spinner.fail();
+        this.spinner.fail('failed');
       }
       const failCount = res.body.invalidApis.length;
       this.error(`Import of ${chalk.red.bold(failCount)} ${failCount === 1 ? 'API' : 'APIs'} failed.`, { exit: false });
@@ -113,19 +135,6 @@ export default class TcamImportApis extends TCBaseCommand {
         }
       }
     }
+  }
 
-  }
-  async catch(err: any) {
-    // add any custom logic to handle errors from the command
-    // or simply return the parent class error handling
-    if (this.spinner)
-      this.spinner.fail();
-    if (err?.httpResponse?.message)
-      err = { message: err?.httpResponse?.message }
-    return super.catch(err);
-  }
-  async finally(err: Error) {
-    // called after run and catch regardless of whether or not the command errored
-    return super.finally(err);
-  }
 }

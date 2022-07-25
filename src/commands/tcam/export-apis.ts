@@ -4,7 +4,7 @@
  * in the license file that is distributed with this file.
  */
 import { flags } from '@oclif/command'
-import { chalk, TCBaseCommand, ux } from '@tibco-software/cic-cli-core';
+import { chalk, TCBaseCommand, TCRequest, ux } from '@tibco-software/cic-cli-core';
 import { join } from 'path';
 import { homedir } from 'os';
 import * as AdmZip from 'adm-zip';
@@ -18,8 +18,7 @@ export default class TcamExportApis extends TCBaseCommand {
   static examples: string[] | undefined = [`tibco tcam:export-apis --projectname "Cli Project"`,
     `tibco tcam:export-apis --projectname "Cli Project" --apinames 'InvalidApi,CliOpenApi" --yaml`,
     `tibco tcam:export-apis -p "Cli Project" -a "InvalidApi,CliOpenApi" -y`];
-  spinner: any;
-  zip: any;
+  spinner!:  Awaited<ReturnType<typeof ux.spinner>>;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({ char: 'h' }),
@@ -31,18 +30,18 @@ export default class TcamExportApis extends TCBaseCommand {
   }
   async init() {
     await super.init();
+    this.spinner =  await ux.spinner();
     // Do any other  initialization
-    this.zip = new AdmZip();
-    this.spinner = await ux.spinner();
   }
 
   async run() {
     const { flags } = this.parse(TcamExportApis);
-    let tcReq = this.getTCRequest();
+    let tcReq: TCRequest = this.getTCRequest();
+    let zip = new AdmZip();
     this.spinner.start("Exporting APIs...");
     const exportExtension = flags.yaml ? '.yaml' : '.json';
     let inputApiNames: string[] = [];
-    const projRes: any = await tcReq.doRequest(CLIAPIS.getprojects, { method: 'GET' });
+    const projRes = await tcReq.doRequest(CLIAPIS.getprojects, { method: 'GET' });
 
     const projects: any[] = projRes.body.projects;
     const project = projects.find((proj) => proj.projectName.toLowerCase() === flags.projectname.trim().toLowerCase());
@@ -54,7 +53,7 @@ export default class TcamExportApis extends TCBaseCommand {
       inputApiNames = flags.apinames.split(',').map((name: string) => name.trim());
       payload.apiNames = inputApiNames;
     }
-    const apiRes: any = await tcReq.doRequest(CLIAPIS.exportapis, { method: 'POST' }, payload);
+    const apiRes = await tcReq.doRequest(CLIAPIS.exportapis, { method: 'POST' }, payload);
     let filteredApis: any[] = apiRes.body.apiItems;
     let invalidNames = [];
     if (filteredApis.length < inputApiNames.length) {
@@ -71,14 +70,14 @@ export default class TcamExportApis extends TCBaseCommand {
     if (filteredApis.length > 1) {
       if (exportExtension === '.json') {
         for (const api of filteredApis) {
-          this.zip.addFile(api.apiName + '-' + api.version + '.json', Buffer.from(JSON.stringify(api.content, undefined, 4)));
+          zip.addFile(api.apiName + '-' + api.version + '.json', Buffer.from(JSON.stringify(api.content, undefined, 4)));
         }
       } else {
         for (const api of filteredApis) {
-          this.zip.addFile(api.apiName + '-' + api.version + '.yaml', Buffer.from(YAML.stringify(api.content)));
+          zip.addFile(api.apiName + '-' + api.version + '.yaml', Buffer.from(YAML.stringify(api.content)));
         }
       }
-      this.zip.writeZip(join(homedir(), 'Downloads', `${project.projectName}.zip`));
+      zip.writeZip(join(homedir(), 'Downloads', `${project.projectName}.zip`));
     }
     if (filteredApis.length === 1) {
       const api = filteredApis[0];
@@ -93,7 +92,7 @@ export default class TcamExportApis extends TCBaseCommand {
       this.spinner.succeed(`${filteredApis.length} ${filteredApis.length === 1 ? 'API' : 'APIs'} exported successfully to the Downloads folder.`);
     }
     if (inputApiNames.length > 0 && inputApiNames.length === invalidNames.length) {
-      this.spinner.fail();
+      this.spinner.fail('failed');
     }
     if (invalidNames.length > 0) {
       this.error(`${invalidNames.length} ${invalidNames.length === 1 ? 'API' : 'APIs'} export failed`, { exit: false });
@@ -102,13 +101,15 @@ export default class TcamExportApis extends TCBaseCommand {
       }
     }
   }
+
   async catch(err: Error) {
     // add any custom logic to handle errors from the command
     // or simply return the parent class error handling
     if (this.spinner)
-      this.spinner.fail();
+    this.spinner.fail('failed');
     return super.catch(err);
   }
+
   async finally(err: Error) {
     // called after run and catch regardless of whether or not the command errored
     return super.finally(err);

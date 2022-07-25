@@ -4,7 +4,7 @@
  * in the license file that is distributed with this file.
  */
 import { flags } from '@oclif/command';
-import { TCBaseCommand, ux } from '@tibco-software/cic-cli-core';
+import { TCBaseCommand, TCRequest, ux } from '@tibco-software/cic-cli-core';
 import { CLIAPIS } from '../../utils/url.constants';
 
 export default class TcamListApis extends TCBaseCommand {
@@ -14,7 +14,7 @@ export default class TcamListApis extends TCBaseCommand {
     `tibco tcam:list-apis --apitypes "openapi"`, `tibco tcam:list-apis -p "AuthProject" -t "openapi"`,
     `tibco tcam:list-apis --apinames "CliAsyncApi,CliOpenApi"`
   ];
-  spinner: any;
+  spinner!: Awaited<ReturnType<typeof ux.spinner>>;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({ char: 'h' }),
@@ -35,26 +35,17 @@ export default class TcamListApis extends TCBaseCommand {
     const { flags } = this.parse(TcamListApis);
     let params = new URLSearchParams();
     if (flags.projectnames) {
-      const projects = flags.projectnames.split(',').map((name: any) => name.trim());
-      projects.forEach((proj: string) => {
-        params.append('projectNames', proj);
-      });
+      this.addListParams(params, flags.projectnames, 'projectNames');
     }
     if (flags.apitypes) {
-      const types = flags.apitypes.split(',').map((name: any) => name.trim());
-      types.forEach((type: string) => {
-        params.append('apiTypes', type);
-      });
+      this.addListParams(params, flags.apitypes, 'apiTypes');
     }
     if (flags.apinames) {
-      const apiNames = flags.apinames.split(',').map((name: any) => name.trim());
-      apiNames.forEach((api: string) => {
-        params.append('apiNames', api);
-      });
+      this.addListParams(params, flags.apinames, 'apiNames');
     }
-    let tcReq = this.getTCRequest();
+    let tcReq: TCRequest = this.getTCRequest();
     this.spinner.start("fetching apis...");
-    const res: any = await tcReq.doRequest(CLIAPIS.getapis, { method: 'GET', params: params });
+    const res = await tcReq.doRequest(CLIAPIS.getapis, { method: 'GET', params: params });
     const apis = res.body.api;
     if (apis.length > 0) {
       this.spinner.succeed("APIs fetched");
@@ -75,7 +66,7 @@ export default class TcamListApis extends TCBaseCommand {
     // add any custom logic to handle errors from the command
     // or simply return the parent class error handling
     if (this.spinner)
-      this.spinner.fail();
+      this.spinner.fail('failed');
     return super.catch(err);
   }
 
@@ -83,4 +74,13 @@ export default class TcamListApis extends TCBaseCommand {
     // called after run and catch regardless of whether or not the command errored
     return super.finally(err);
   }
+
+  addListParams(params: URLSearchParams, flagValue: string, paramName: string): void {
+    flagValue
+      .split(',')
+      .forEach(item => {
+         params.append(paramName, item.trim())
+      });  
+  }
+
 }

@@ -1,7 +1,6 @@
-const { getDummyResponse, getStaticResponses } = require("./commom.function");
-class Oas3StaticHandler {
-  constructor() {}
-  generateStaticResponse = (responses, schema) => {
+const { getDummyResponse, getStaticResponses } = require("./common.function");
+
+  exports.generateStaticResponseOAS3 = (responses, schema) => {
     const examples = responses["200"].content["application/json"].example
       ? responses["200"].content["application/json"].example
       : responses["200"].content["application/json"].examples;
@@ -20,5 +19,3 @@ class Oas3StaticHandler {
       return "'200 okay'";
     }
   };
-}
-module.exports = new Oas3StaticHandler();
