@@ -13,7 +13,7 @@ export default class TcamListProjects extends TCBaseCommand {
   `tibco tcam:list-projects --projectnames "Cli Project, UI Project"`,
   `tibco tcam:list-projects -p "Cli Project, UI Project"`
    ];
-  spinner!: Awaited<ReturnType<typeof ux.spinner>>;
+  spinner: any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({char: 'h'}),

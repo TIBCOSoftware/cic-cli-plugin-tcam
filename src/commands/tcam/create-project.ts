@@ -11,7 +11,7 @@ export default class TcamCreateProject extends TCBaseCommand {
   static description = 'Create a project';
   static examples: string[] | undefined = [`tibco tcam:create-project --name "Cli Project"`,
     `tibco tcam:create-project -n "Cli Project"`];
-  spinner!:  Awaited<ReturnType<typeof ux.spinner>>;
+  spinner: any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({ char: 'h' }),
