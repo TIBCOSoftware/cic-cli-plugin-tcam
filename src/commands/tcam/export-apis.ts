@@ -18,7 +18,7 @@ export default class TcamExportApis extends TCBaseCommand {
   static examples: string[] | undefined = [`tibco tcam:export-apis --projectname "Cli Project"`,
     `tibco tcam:export-apis --projectname "Cli Project" --apinames 'InvalidApi,CliOpenApi" --yaml`,
     `tibco tcam:export-apis -p "Cli Project" -a "InvalidApi,CliOpenApi" -y`];
-  spinner!:  Awaited<ReturnType<typeof ux.spinner>>;
+  spinner: any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({ char: 'h' }),

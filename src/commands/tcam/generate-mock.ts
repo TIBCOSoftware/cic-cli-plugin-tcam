@@ -23,7 +23,7 @@ export default class TcamGenMock extends TCBaseCommand {
       `tibco tcam:generate-mock -f "C:/Users/myuser/Desktop/Upload/ImportApi.json" -d -s`];
   // spinner: typeof ux.spinner;
   tcReq: TCRequest = this.getTCRequest();
-  spinner!:  Awaited<ReturnType<typeof ux.spinner>>;
+  spinner: any;
   tmpStorage = '';
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,

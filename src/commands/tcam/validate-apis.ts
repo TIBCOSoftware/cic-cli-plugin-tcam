@@ -19,7 +19,7 @@ export default class TcamValidateApis extends TCBaseCommand {
         `tibco tcam:validate-apis --from "C:/Users/myuser/Desktop/Upload/ImportProject" --apinames "bankapi,yamlapi"`,
         `tibco tcam:validate-apis -f "C:/Users/myuser/Desktop/Upload/ImportProject" -a "bankapi,yamlapi"`
     ];
-    spinner!: Awaited<ReturnType<typeof ux.spinner>>;
+    spinner: any;
     static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
         ...TCBaseCommand.flags,
         help: flags.help({ char: 'h' }),

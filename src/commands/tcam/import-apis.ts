@@ -19,7 +19,7 @@ export default class TcamImportApis extends TCBaseCommand {
     "tibco tcam:import-apis --from 'C:/Users/myuser/Desktop/Upload/ImportApi.json' --projectname 'TestProject'",
     "tibco tcam:import-apis -f 'C:/Users/myuser/Desktop/Upload/ImportProject' -p 'TestProject'"
   ];
-  spinner!: Awaited<ReturnType<typeof ux.spinner>>;
+  spinner: any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({ char: 'h' }),

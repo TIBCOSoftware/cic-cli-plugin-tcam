@@ -14,7 +14,7 @@ export default class TcamListApis extends TCBaseCommand {
     `tibco tcam:list-apis --apitypes "openapi"`, `tibco tcam:list-apis -p "AuthProject" -t "openapi"`,
     `tibco tcam:list-apis --apinames "CliAsyncApi,CliOpenApi"`
   ];
-  spinner!: Awaited<ReturnType<typeof ux.spinner>>;
+  spinner: any;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({ char: 'h' }),
