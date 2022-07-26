@@ -4,39 +4,43 @@
  * in the license file that is distributed with this file.
  */
 import {flags} from '@oclif/command';
-import {TCBaseCommand,ux} from '@tibco-software/cic-cli-core';
-import { CLIAPIS } from '../../constants/url.constants';
+import {TCBaseCommand,TCRequest,ux} from '@tibco-software/cic-cli-core';
+import { CLIAPIS } from '../../utils/url.constants';
+
 export default class TcamListProjects extends TCBaseCommand {
-  static description = "Lists projects";
+  static description = "List projects";
   static examples: string[] | undefined = ["tibco tcam:list-projects",
-  "tibco tcam:list-projects -p 'Cli Project, UI Project'"
+  `tibco tcam:list-projects --projectnames "Cli Project, UI Project"`,
+  `tibco tcam:list-projects -p "Cli Project, UI Project"`
    ];
-   spinner:any;
+  spinner!: Awaited<ReturnType<typeof ux.spinner>>;
   static flags: flags.Input<any> & typeof TCBaseCommand.flags = {
     ...TCBaseCommand.flags,
     help: flags.help({char: 'h'}),
     // flag with no value (-f, --force)
     force: flags.boolean({char: 'f'}),
-    projectnames: flags.string({char: 'p', description: 'Project names'}),
+    projectnames: flags.string({char: 'p', description: 'Specify project names'}),
   }
+
   async init() {
     await super.init();
     // Do any other  initialization
    this.spinner = await ux.spinner();
   }
+
   async run() {
     const {flags} = this.parse(TcamListProjects);
     let projects = [];
     let params = new URLSearchParams();
     if(flags.projectnames){
-      projects = flags.projectnames.split(',').map((name:any) => name.trim());
+      projects = flags.projectnames.split(',').map((name:string) => name.trim());
        projects.forEach((proj:string) => {
          params.append('projectNames',proj);
        });
     }
-   let tcReq = this.getTCRequest();
+   let tcReq: TCRequest = this.getTCRequest();
     this.spinner.start("fetching projects...");
-    const res:any=await tcReq.doRequest(CLIAPIS.getprojects,{method:'GET',params:params});
+    const res = await tcReq.doRequest(CLIAPIS.getprojects,{method:'GET',params:params});
    const projectsArr = res.body.projects;
    if(projectsArr.length > 0){
     this.spinner.succeed("Projects fetched");
@@ -51,13 +55,15 @@ export default class TcamListProjects extends TCBaseCommand {
     this.spinner.fail("No Projects found");
    }
   }
+
   async catch(err: Error) {
     // add any custom logic to handle errors from the command
     // or simply return the parent class error handling
     if(this.spinner)
-    this.spinner.fail()
+    this.spinner.fail('failed');
     return super.catch(err);
   }
+  
   async finally(err: Error) {
     // called after run and catch regardless of whether or not the command errored
     return super.finally(err);

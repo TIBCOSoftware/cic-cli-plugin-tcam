@@ -1,0 +1,73 @@
+{
+  "_from": "codegen-swagger-express@^1.0.1",
+  "_id": "codegen-swagger-express@1.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-jDDUm2MG9fewAVreA9J09X0dVIxZSsqWrIG/cOPxRU+V5SN2npmSZlgLuE+4cS/hSjJ/JdrmA0SLwaEatJEqTA==",
+  "_location": "/codegen-swagger-express",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "codegen-swagger-express@^1.0.1",
+    "name": "codegen-swagger-express",
+    "escapedName": "codegen-swagger-express",
+    "rawSpec": "^1.0.1",
+    "saveSpec": null,
+    "fetchSpec": "^1.0.1"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/codegen-swagger-express/-/codegen-swagger-express-1.0.1.tgz",
+  "_shasum": "06222de6d668c988e95b8dca7df3f515a7f5fa40",
+  "_spec": "codegen-swagger-express@^1.0.1",
+  "_where": "C:\\Users\\rgaidhan\\Desktop\\Mock code generation",
+  "author": {
+    "name": "AndreOneti"
+  },
+  "bin": {
+    "cse": "cli.js"
+  },
+  "bugs": {
+    "url": "https://github.com/AndreOneti/codegen-swagger-express/issues"
+  },
+  "bundleDependencies": false,
+  "contributors": [],
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "^2.20.3",
+    "fs.extra": "^1.3.2",
+    "handlebars": "^4.7.6",
+    "js-yaml": "^3.14.1",
+    "json-schema-faker": "^0.5.0-rcv.42",
+    "json-schema-ref-parser": "^4.1.1",
+    "lodash": "^4.17.20",
+    "project-name-generator": "^2.1.9",
+    "word-wrap": "^1.1.0"
+  },
+  "deprecated": false,
+  "description": "An OpenAPI 3.x/Swagger 2 code generator for Node.js",
+  "engines": {
+    "node": ">=7.6"
+  },
+  "homepage": "https://github.com/AndreOneti/codegen-swagger-express",
+  "keywords": [
+    "swagger",
+    "openapi",
+    "rest",
+    "es6",
+    "es7",
+    "es2015",
+    "node.js",
+    "codegen",
+    "generator"
+  ],
+  "license": "MIT",
+  "main": "./lib/codegen.js",
+  "name": "codegen-swagger-express",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/AndreOneti/codegen-swagger-express.git"
+  },
+  "version": "1.0.1"
+}
